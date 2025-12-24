@@ -4,21 +4,21 @@ import sys
 def add_item(inventory, item_name, category, quantity):
     if item_name in inventory:
         inventory[item_name]["quantity"] += quantity
+        inventory[item_name]["history"].append(f"Added {quantity}")
     else:
         inventory[item_name] = {
             "category": category,
             "quantity": quantity,
             "history": [f"Added {quantity}"]
         }
-    return inventory
 
 
 def stock_in(inventory, item_name, quantity):
-    if item_name in inventory:
-        inventory[item_name]["quantity"] += quantity
-        inventory[item_name]["history"].append(f"Stock in {quantity}")
-    else:
+    if item_name not in inventory:
         raise ValueError("Item does not exist")
+
+    inventory[item_name]["quantity"] += quantity
+    inventory[item_name]["history"].append(f"Stock in {quantity}")
 
 
 def stock_out(inventory, item_name, quantity):
@@ -32,15 +32,11 @@ def stock_out(inventory, item_name, quantity):
     inventory[item_name]["history"].append(f"Stock out {quantity}")
 
 
-def get_current_quantity(inventory, item_name):
-    return inventory[item_name]["quantity"]
-
-
 def low_stock_items(inventory, threshold=5):
     return {
-        item: details["quantity"]
-        for item, details in inventory.items()
-        if details["quantity"] <= threshold
+        item: data["quantity"]
+        for item, data in inventory.items()
+        if data["quantity"] <= threshold
     }
 
 
@@ -49,32 +45,32 @@ if __name__ == "__main__":
     script_name = sys.argv[0]
     inventory = {}
 
-    # Expected format:
-    # python inventory_manager.py item category quantity stockin stockout
-    if len(sys.argv) >= 4:
-        item_name = sys.argv[1]
-        category = sys.argv[2]
-        quantity = int(sys.argv[3])
+    # Format:
+    # python inventory_manager.py Pen Stationery 10 Book Education 3 Mouse Electronics 15
+    if len(sys.argv) > 3 and (len(sys.argv) - 1) % 3 == 0:
+        args = sys.argv[1:]
+        print("User provided inventory data:")
 
-        print("User provided inventory details:")
+        for i in range(0, len(args), 3):
+            item = args[i]
+            category = args[i + 1]
+            quantity = int(args[i + 2])
+            add_item(inventory, item, category, quantity)
     else:
-        item_name = "Pen"
-        category = "Stationery"
-        quantity = 10
+        print("No or invalid input – using default inventory")
 
-        print("No input given - using default values:")
+        add_item(inventory, "Pen", "Stationery", 10)
+        add_item(inventory, "Book", "Education", 4)
+        add_item(inventory, "Mouse", "Electronics", 2)
 
-    add_item(inventory, item_name, category, quantity)
-
-    # Sample stock movements
-    stock_in(inventory, item_name, 5)
-    stock_out(inventory, item_name, 3)
-
-    print("\n========== Inventory Report ==========")
+    print("\n========== Inventory Summary ==========")
     print("Script Name:", script_name)
-    print("Item Name:", item_name)
-    print("Category:", inventory[item_name]["category"])
-    print("Current Quantity:", inventory[item_name]["quantity"])
-    print("Stock History:", inventory[item_name]["history"])
-    print("Low Stock Items:", low_stock_items(inventory))
-    print("=====================================")
+
+    for item, data in inventory.items():
+        print("\nItem Name:", item)
+        print("Category:", data["category"])
+        print("Quantity:", data["quantity"])
+        print("History:", data["history"])
+
+    print("\nLow Stock Items:", low_stock_items(inventory))
+    print("======================================")
