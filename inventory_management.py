@@ -2,34 +2,11 @@ import sys
 
 
 def add_item(inventory, item_name, category, quantity):
-    if item_name in inventory:
-        inventory[item_name]["quantity"] += quantity
-        inventory[item_name]["history"].append(f"Added {quantity}")
-    else:
-        inventory[item_name] = {
-            "category": category,
-            "quantity": quantity,
-            "history": [f"Added {quantity}"]
-        }
-
-
-def stock_in(inventory, item_name, quantity):
-    if item_name not in inventory:
-        raise ValueError("Item does not exist")
-
-    inventory[item_name]["quantity"] += quantity
-    inventory[item_name]["history"].append(f"Stock in {quantity}")
-
-
-def stock_out(inventory, item_name, quantity):
-    if item_name not in inventory:
-        raise ValueError("Item does not exist")
-
-    if inventory[item_name]["quantity"] < quantity:
-        raise ValueError("Insufficient stock")
-
-    inventory[item_name]["quantity"] -= quantity
-    inventory[item_name]["history"].append(f"Stock out {quantity}")
+    inventory[item_name] = {
+        "category": category,
+        "quantity": quantity,
+        "history": [f"Added {quantity}"]
+    }
 
 
 def low_stock_items(inventory, threshold=5):
@@ -42,32 +19,42 @@ def low_stock_items(inventory, threshold=5):
 
 if __name__ == "__main__":
 
-    script_name = sys.argv[0]
     inventory = {}
+    script_name = sys.argv[0]
 
-    # Format:
-    # python inventory_manager.py Pen Stationery 10 Book Education 3 Mouse Electronics 15
-    if len(sys.argv) > 3 and (len(sys.argv) - 1) % 3 == 0:
-        args = sys.argv[1:]
+    # Jenkins format:
+    # python inventory_management.py "pen pencil mouse" "stationary stationary electronics" "20 12 11"
+    if len(sys.argv) == 4:
+        item_names = sys.argv[1].split()
+        categories = sys.argv[2].split()
+        quantities = sys.argv[3].split()
+
         print("User provided inventory data:")
 
-        for i in range(0, len(args), 3):
-            item = args[i]
-            category = args[i + 1]
-            quantity = int(args[i + 2])
-            add_item(inventory, item, category, quantity)
-    else:
-        print("No or invalid input – using default inventory")
+        if not (len(item_names) == len(categories) == len(quantities)):
+            print("Error: Item, category, and quantity counts must match")
+            sys.exit(1)
 
-        add_item(inventory, "Pen", "Stationery", 10)
-        add_item(inventory, "Book", "Education", 4)
-        add_item(inventory, "Mouse", "Electronics", 2)
+        for i in range(len(item_names)):
+            add_item(
+                inventory,
+                item_names[i],
+                categories[i],
+                int(quantities[i])
+            )
+
+    else:
+        print("No input provided – using default inventory")
+
+        add_item(inventory, "pen", "stationary", 10)
+        add_item(inventory, "pencil", "stationary", 4)
+        add_item(inventory, "mouse", "electronics", 2)
 
     print("\n========== Inventory Summary ==========")
     print("Script Name:", script_name)
 
     for item, data in inventory.items():
-        print("\nItem Name:", item)
+        print("\nItem:", item)
         print("Category:", data["category"])
         print("Quantity:", data["quantity"])
         print("History:", data["history"])
