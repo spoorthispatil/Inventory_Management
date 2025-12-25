@@ -1,80 +1,61 @@
 import sys
-
-
-def add_item(inventory, item_name, category, quantity):
-    if item_name in inventory:
-        inventory[item_name]["quantity"] += quantity
-    else:
-        inventory[item_name] = {
-            "category": category,
-            "quantity": quantity,
-            "history": [f"Added {quantity}"]
-        }
-    return inventory
-
-
-def stock_in(inventory, item_name, quantity):
-    if item_name in inventory:
-        inventory[item_name]["quantity"] += quantity
-        inventory[item_name]["history"].append(f"Stock in {quantity}")
-    else:
-        raise ValueError("Item does not exist")
-
-
-def stock_out(inventory, item_name, quantity):
-    if item_name not in inventory:
-        raise ValueError("Item does not exist")
-
-    if inventory[item_name]["quantity"] < quantity:
-        raise ValueError("Insufficient stock")
-
-    inventory[item_name]["quantity"] -= quantity
-    inventory[item_name]["history"].append(f"Stock out {quantity}")
-
-
-def get_current_quantity(inventory, item_name):
-    return inventory[item_name]["quantity"]
-
-
+def add_item(inventory, name, category, quantity):
+    inventory[name] = {
+        "category": category,
+        "quantity": quantity,
+        "history": [f"Added {quantity}"]
+    }
 def low_stock_items(inventory, threshold=5):
     return {
-        item: details["quantity"]
-        for item, details in inventory.items()
-        if details["quantity"] <= threshold
+        item: data["quantity"]
+        for item, data in inventory.items()
+        if data["quantity"] <= threshold
     }
-
-
 if __name__ == "__main__":
-
-    script_name = sys.argv[0]
     inventory = {}
-
-    # Expected format:
-    # python inventory_manager.py item category quantity stockin stockout
-    if len(sys.argv) >= 4:
-        item_name = sys.argv[1]
-        category = sys.argv[2]
-        quantity = int(sys.argv[3])
-
-        print("User provided inventory details:")
-    else:
-        item_name = "Pen"
-        category = "Stationery"
-        quantity = 10
-
-        print("No input given - using default values:")
-
-    add_item(inventory, item_name, category, quantity)
-
-    # Sample stock movements
-    stock_in(inventory, item_name, 5)
-    stock_out(inventory, item_name, 3)
-
-    print("\n========== Inventory Report ==========")
-    print("Script Name:", script_name)
-    print("Item Name:", item_name)
-    print("Category:", inventory[item_name]["category"])
-    print("Current Quantity:", inventory[item_name]["quantity"])
-    print("Stock History:", inventory[item_name]["history"])
-    print("Low Stock Items:", low_stock_items(inventory))
-    print("=====================================")
+    script_name = sys.argv[0]
+    if len(sys.argv) != 4:
+        print("ERROR: Expected 3 parameters")
+        print("Usage:")
+        print('python inventory_management.py "items" "categories" "quantities"')
+        sys.exit(1)
+    #Raw input from Jenkins
+    raw_items = sys.argv[1].strip()
+    raw_categories = sys.argv[2].strip()
+    raw_quantities = sys.argv[3].strip()
+    #Split inputs
+    items = raw_items.split()
+    categories = raw_categories.split()
+    quantities_str = raw_quantities.split()
+    #Debug (VERY IMPORTANT)
+    print("DEBUG INPUT FROM JENKINS")
+    print("Items     :", items)
+    print("Categories:", categories)
+    print("Quantities:", quantities_str)
+    #Validation
+    if not (len(items) == len(categories) == len(quantities_str)):
+        print("ERROR: Count mismatch!")
+        print("Items:", len(items))
+        print("Categories:", len(categories))
+        print("Quantities:", len(quantities_str))
+        sys.exit(1)
+    #Convert quantities safely
+    quantities = []
+    for q in quantities_str:
+        try:
+            quantities.append(int(q))
+        except ValueError:
+            print("ERROR: Quantity must be an integer ->", q)
+            sys.exit(1)
+    #Add unlimited products
+    for i in range(len(items)):
+        add_item(inventory, items[i], categories[i], quantities[i])
+    print("\n========== INVENTORY SUMMARY ==========")
+    print("Script:", script_name)
+    for item, data in inventory.items():
+        print("\nItem Name :", item)
+        print("Category  :", data["category"])
+        print("Quantity  :", data["quantity"])
+        print("History   :", data["history"])
+    print("\nLow Stock Items:", low_stock_items(inventory))
+    print("======================================")
