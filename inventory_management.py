@@ -21,22 +21,27 @@ if __name__ == "__main__":
     inventory = {}
     script_name = sys.argv[0]
 
-    # ---------- DEFAULT VALUES ----------
-    default_items = "pen pencil mouse"
-    default_categories = "stationary stationary electronics"
-    default_quantities = "10 5 3"
+   # ---------- DEFAULT VALUES ----------
+default_items = "pen pencil mouse"
+default_categories = "stationary stationary electronics"
+default_quantities = "10 5 3"
 
-    # ---------- INPUT HANDLING ----------
-    if len(sys.argv) == 4:
-        print("Using user-provided input")
-        raw_items = sys.argv[1].strip()
-        raw_categories = sys.argv[2].strip()
-        raw_quantities = sys.argv[3].strip()
-    else:
-        print("No / insufficient input provided – using DEFAULT values")
-        raw_items = default_items
-        raw_categories = default_categories
-        raw_quantities = default_quantities
+# ---------- INPUT HANDLING ----------
+if (
+    len(sys.argv) == 4
+    and sys.argv[1].strip()
+    and sys.argv[2].strip()
+    and sys.argv[3].strip()
+):
+    print("Using user-provided input")
+    raw_items = sys.argv[1].strip()
+    raw_categories = sys.argv[2].strip()
+    raw_quantities = sys.argv[3].strip()
+else:
+    print("No / empty input provided – using DEFAULT values")
+    raw_items = default_items
+    raw_categories = default_categories
+    raw_quantities = default_quantities
 
     # ---------- SPLIT INPUTS ----------
     items = raw_items.split()
