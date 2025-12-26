@@ -18,12 +18,12 @@ def main():
     inventory = {}
     script_name = sys.argv[0]
 
-    # ---------- DEFAULT VALUES ----------
+    #DEFAULT VALUES
     default_items = ["pen", "pencil", "mouse"]
     default_categories = ["stationary", "stationary", "electronics"]
     default_quantities = [10, 5, 3]
 
-    # ---------- INPUT HANDLING ----------
+    #HANDLING
     if len(sys.argv) != 4 or not all(sys.argv[1:]):
         print("No / empty input provided – using DEFAULT values")
         items = default_items
@@ -44,11 +44,11 @@ def main():
             print("ERROR: Quantity must be integer")
             return 0   # <-- IMPORTANT
 
-    # ---------- INVENTORY BUILD ----------
+    #INVENTORY BUILD
     for i in range(len(items)):
         add_item(inventory, items[i], categories[i], quantities[i])
 
-    # ---------- OUTPUT ----------
+    #OUTPUT
     print("\n========== INVENTORY SUMMARY ==========")
     print("Script:", script_name)
 
@@ -61,8 +61,6 @@ def main():
     print("\nLow Stock Items:", low_stock_items(inventory))
     print("======================================")
 
-    return 0   # <-- pytest-friendly
-
-# 🔥 CRITICAL LINE (pytest-safe)
+    return 0   
 if __name__ == "__main__":
     sys.exit(main())
